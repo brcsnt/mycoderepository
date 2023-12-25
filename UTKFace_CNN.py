@@ -1,7 +1,7 @@
+# Gerekli kütüphanelerin içe aktarılması
 import os
 import numpy as np
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
-# Gerekli kütüphanelerin içe aktarılması
 import numpy as np
 import os
 import matplotlib.pyplot as plt
@@ -145,8 +145,17 @@ plt.show()
 
 
 # Test veri seti üzerinde modelin değerlendirilmesi
-test_loss, test_age_mae, test_gender_accuracy = model.evaluate(x_test, {'age_output': y_test_age, 'gender_output': y_test_gender})
+results = model.evaluate(x_test, {'age_output': y_test_age, 'gender_output': y_test_gender})
+
+# Sonuçları uygun şekilde atama
+test_loss = results[0]
+test_age_loss = results[1]
+test_gender_loss = results[2]
+test_age_mae = results[3]
+test_gender_accuracy = results[4]
 
 print("Test Loss:", test_loss)
+print("Test Age Loss:", test_age_loss)
+print("Test Gender Loss:", test_gender_loss)
 print("Test Age MAE:", test_age_mae)
 print("Test Gender Accuracy:", test_gender_accuracy)
