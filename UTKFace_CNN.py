@@ -1,6 +1,16 @@
 import os
 import numpy as np
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
+# Gerekli kütüphanelerin içe aktarılması
+import numpy as np
+import os
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from tensorflow.keras.models import Model, Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Input
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
+
 
 # 1. Veri Kümesini Yükleme ve Ön İşleme
 # Veri kümesinin bulunduğu dizin
