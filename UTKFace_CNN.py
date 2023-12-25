@@ -2,6 +2,7 @@ import os
 import numpy as np
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 
+# 1. Veri Kümesini Yükleme ve Ön İşleme
 # Veri kümesinin bulunduğu dizin
 dataset_directory = '/path/to/dataset'
 
@@ -30,7 +31,7 @@ images = np.array(images, dtype="float32") / 255.0
 ages = np.array(ages)
 genders = np.array(genders)
 
-
+# 2. Kendi CNN Mimarinizi Oluşturma
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Input
 
@@ -52,6 +53,7 @@ def create_custom_cnn():
     return model
 from tensorflow.keras.applications import VGG16
 
+# 3. Transfer Learning Modeli
 def create_transfer_model():
     base_model = VGG16(weights='imagenet', include_top=False, input_shape=(200, 200, 3))
     base_model.trainable = False  # Temel modelin katmanlarını dondur
@@ -84,6 +86,7 @@ history_transfer_model = transfer_model.fit(x_train, {'age_output': y_train_age,
                                             epochs=10, batch_size=32, validation_split=0.2)
 
 
+# Model Performansının Değerlendirilmesi
 import matplotlib.pyplot as plt
 
 def plot_model_performance(history, title):
