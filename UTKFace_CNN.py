@@ -31,6 +31,13 @@ images = np.array(images, dtype="float32") / 255.0
 ages = np.array(ages)
 genders = np.array(genders)
 
+from sklearn.model_selection import train_test_split
+
+# Veri setini %70 eğitim ve %30 test olarak ayırma
+x_train, x_test, y_train_age, y_test_age = train_test_split(images, ages, test_size=0.3, random_state=42)
+_, _, y_train_gender, y_test_gender = train_test_split(images, genders, test_size=0.3, random_state=42)
+
+
 # 2. Kendi CNN Mimarinizi Oluşturma
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Input
