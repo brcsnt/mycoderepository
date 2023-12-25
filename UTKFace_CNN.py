@@ -142,3 +142,11 @@ plt.ylabel('Accuracy')
 plt.xlabel('Epoch')
 plt.legend()
 plt.show()
+
+
+# Test veri seti üzerinde modelin değerlendirilmesi
+test_loss, test_age_mae, test_gender_accuracy = model.evaluate(x_test, {'age_output': y_test_age, 'gender_output': y_test_gender})
+
+print("Test Loss:", test_loss)
+print("Test Age MAE:", test_age_mae)
+print("Test Gender Accuracy:", test_gender_accuracy)
