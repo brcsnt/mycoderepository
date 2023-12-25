@@ -133,3 +133,12 @@ def plot_model_performance(history, title):
 # Her iki modelin performansını çizdir
 plot_model_performance(history_custom_cnn, 'Custom CNN')
 plot_model_performance(history_transfer_model, 'Transfer Learning Model')
+
+# Doğruluk Değerlendirmesi
+plt.plot(history.history['gender_output_accuracy'], label='Training Accuracy')
+plt.plot(history.history['val_gender_output_accuracy'], label='Validation Accuracy')
+plt.title('Model Accuracy')
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.legend()
+plt.show()
