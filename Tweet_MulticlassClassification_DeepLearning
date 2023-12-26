@@ -70,3 +70,23 @@ test_loss, test_accuracy = model.evaluate(padded_test, yTest)
 
 print(f"Test Kaybı: {test_loss}")
 print(f"Test Doğruluğu: {test_accuracy}")
+
+
+import numpy as np
+from sklearn.metrics import confusion_matrix
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Modelle tahmin yapma
+predictions = model.predict(padded_test)
+
+# Confusion matrisi hesaplama
+cm = confusion_matrix(yTest, predicted_classes)
+
+# Confusion matrisini görselleştirme
+plt.figure(figsize=(10, 7))
+sns.heatmap(cm, annot=True, fmt='g', cmap='Blues', xticklabels=['Sınıf 1', 'Sınıf 2', 'Sınıf 3'], yticklabels=['Sınıf 1', 'Sınıf 2', 'Sınıf 3'])
+plt.xlabel('Tahmin Edilen Sınıf')
+plt.ylabel('Gerçek Sınıf')
+plt.title('Confusion Matrisi')
+plt.show()
