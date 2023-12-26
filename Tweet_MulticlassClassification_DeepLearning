@@ -64,3 +64,9 @@ plt.ylabel('Doğruluk')
 plt.xlabel('Epoch')
 plt.legend()
 plt.show()
+
+# Modeli test seti üzerinde değerlendirme
+test_loss, test_accuracy = model.evaluate(padded_test, yTest)
+
+print(f"Test Kaybı: {test_loss}")
+print(f"Test Doğruluğu: {test_accuracy}")
