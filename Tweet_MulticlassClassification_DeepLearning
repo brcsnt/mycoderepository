@@ -4,42 +4,45 @@ from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Embedding, GRU, Dense, Dropout
+from tensorflow.keras.layers import BatchNormalization
 
-# Veri Ön İşleme
-# Veri setini yükleme
-data = pd.read_csv('Tweets.csv')
 
-# Sadece gerekli sütunları kullanma
-data = data[['text', 'airline_sentiment']]
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Embedding, LSTM, Dense, Dropout
 
-# Eksik verileri kaldırma
-data.dropna(inplace=True)
+# Model parametrelerini tanımlama
+embedding_dim = 128  # Gömme boyutu
+max_length = max_length  # Maksimum dizi uzunluğu, sizin 'max_length' değerinize bağlı
+vocab_size = vocab_size   # Sözlük büyüklüğü, verinize bağlı olarak ayarlayın
 
-# Metin verisini sayısal veriye dönüştürme (TF-IDF)
-vectorizer = TfidfVectorizer(stop_words='english', max_features=1000)
-X = vectorizer.fit_transform(data['text']).toarray()
+# LSTM modelini oluşturma
+#model = Sequential()
+#model.add(Embedding(vocab_size, embedding_dim, input_length=max_length))
+#model.add(LSTM(64, return_sequences=True))
+#model.add(Dropout(0.5))
+#model.add(LSTM(32))
+#model.add(Dense(16, activation='relu'))
+#model.add(Dense(1, activation='softmax'))  # Çıkış katmanı
 
-# Duyarlılık etiketlerini sayısal formata dönüştürme
-y = pd.get_dummies(data['airline_sentiment']).values
-
-# Veriyi eğitim ve test setlerine ayırma
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Yapay Sinir Ağı Modelinin Oluşturulması
-# Yapay sinir ağı modelini oluşturma
+# GRU modelini oluşturma
 model = Sequential()
-model.add(Dense(128, activation='relu', input_shape=(X_train.shape[1],)))
+model.add(Embedding(vocab_size, embedding_dim, input_length=max_length))
+model.add(GRU(units=256))
 model.add(Dropout(0.5))
-model.add(Dense(64, activation='relu'))
+model.add(Dense(16, activation='relu'))
 model.add(Dropout(0.5))
-model.add(Dense(y_train.shape[1], activation='softmax'))
+model.add(BatchNormalization())
+model.add(Dense(1, activation='sigmoid'))  # Örnek olarak 3 sınıflı çıktı katmanı
+
 
 # Modeli derleme
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-# Modelin Eğitilmesi
 # Modeli eğitme
-history = model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y_test))
+history = model.fit(padded_train, yTrain, epochs=10, batch_size=32, validation_data=(padded_test, yTest))
+
 
 # Model Performansının Değerlendirilmesi
 import matplotlib.pyplot as plt
@@ -61,44 +64,3 @@ plt.ylabel('Doğruluk')
 plt.xlabel('Epoch')
 plt.legend()
 plt.show()
-
-
-
-################### 2.MODEL ################################
-
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout
-
-# Yeni yapay sinir ağı modelini oluşturma
-model_2 = Sequential()
-model_2.add(Dense(64, activation='relu', input_shape=(X_train.shape[1],)))
-model_2.add(Dropout(0.3))
-model_2.add(Dense(32, activation='relu'))
-model_2.add(Dropout(0.3))
-model_2.add(Dense(y_train.shape[1], activation='softmax'))
-
-# Modeli derleme
-model_2.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-
-# Modeli eğitme
-history_2 = model_2.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y_test))
-
-# Her İki Modelin Performansının Karşılaştırılması
-import matplotlib.pyplot as plt
-
-# İlk modelin doğruluk değerlerini çizme
-plt.plot(history.history['val_accuracy'], label='Model 1 Doğruluk')
-
-# İkinci modelin doğruluk değerlerini çizme
-plt.plot(history_2.history['val_accuracy'], label='Model 2 Doğruluk')
-
-# Grafik başlığı ve etiketleri
-plt.title('Model Doğruluk Karşılaştırması')
-plt.ylabel('Doğruluk')
-plt.xlabel('Epoch')
-plt.legend()
-plt.show()
-
-
-
-
