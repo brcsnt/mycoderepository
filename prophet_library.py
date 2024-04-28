@@ -230,3 +230,68 @@ layout = go.Layout(
 
 fig = go.Figure(data=data, layout=layout)
 fig.show()
+
+
+# Case 4
+
+# Gerekli kütüphanelerin yüklenmesi
+import pandas as pd
+from fbprophet import Prophet
+from fbprophet.plot import add_changepoints_to_plot
+import plotly.graph_objs as go
+from sklearn.metrics import mean_squared_error
+from math import sqrt
+import numpy as np
+
+# Veri setinin yüklenmesi ve önişleme
+df = pd.read_csv('your_dataset.csv')
+df['ds'] = pd.to_datetime(df['date_column'])  # 'date_column' ismindeki sütunu datetime objesine çevir
+df.rename(columns={'target_column': 'y'}, inplace=True)  # 'target_column' tahmin edilecek değişken
+
+# Bayraklar ve diğer kategorik değişkenlerin eklenmesi
+flags = [
+    'HOLIDAY_FLG', 'HALF_DAY_FLG', 'PEAK_DAY_FLG', 'MONTH_FIRST_DAY_FLG',
+    'YEAR_FIRST_DAY_FLG', 'YEAR_LAST_DAY_FLG', 'HALF_YEAR_LAST_DAY_FLG', 'MONTH_LAST_DAY_FLG'
+]
+for flag in flags:
+    df[flag] = df[flag].astype(float)
+
+# DAY_CODE'un one-hot encoding'i
+day_code_dummies = pd.get_dummies(df['DAY_CODE'], prefix='day_code')
+df = pd.concat([df, day_code_dummies], axis=1)
+
+# Model kurulumu
+model = Prophet(daily_seasonality=True)
+for flag in flags + day_code_dummies.columns.tolist():
+    model.add_regressor(flag)
+
+# Veri setini eğitim ve test setlerine bölme
+# Son 90 günü test seti olarak ayır
+split_date = df['ds'].max() - pd.Timedelta(days=90)
+train = df[df['ds'] <= split_date]
+test = df[df['ds'] > split_date]
+
+# Modelin eğitilmesi
+model.fit(train)
+
+# Gelecek tarihler için DataFrame oluşturma
+future = model.make_future_dataframe(periods=90)
+for flag in flags + day_code_dummies.columns.tolist():
+    if flag in df.columns:
+        future[flag] = np.concatenate([train[flag], test[flag]])
+
+# Tahminlerin yapılması
+forecast = model.predict(future)
+
+# Tahminlerin ve gerçek değerlerin görselleştirilmesi
+fig = go.Figure()
+fig.add_trace(go.Scatter(x=test['ds'], y=test['y'], mode='markers', name='Gerçek Değerler'))
+fig.add_trace(go.Scatter(x=forecast['ds'], y=forecast['yhat'], mode='lines', name='Tahminler'))
+fig.add_trace(go.Scatter(x=forecast['ds'], y=forecast['yhat_upper'], mode='lines', name='Üst Tahmin Sınırı', line=dict(width=0)))
+fig.add_trace(go.Scatter(x=forecast['ds'], y=forecast['yhat_lower'], mode='lines', fill='tonexty', name='Alt Tahmin Sınırı', line=dict(width=0)))
+fig.update_layout(title='OOT Veri Seti Üzerinde Gerçek Değerler ve Tahminler', xaxis_title='Tarih', yaxis_title='Kaynak Tüketimi', legend_title='Gösterim')
+fig.show()
+
+# Performans değerlendirmesi
+rmse = sqrt(mean_squared_error(test['y'], forecast['yhat'][forecast['ds'] > split_date]))
+print('Test seti RMSE:', rmse)
